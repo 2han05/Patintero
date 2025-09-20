@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Patintero - Home Menu</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #222;
+      font-family: 'Fredoka One', cursive, Arial, sans-serif;
+      color: white;
+    }
+
+    .menu {
+      text-align: center;
+      padding: 40px 60px;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 25px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      font-size: 48px;
+      color: #fff;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+    }
+
+    button {
+      display: block;
+      margin: 15px auto;
+      padding: 15px 40px;
+      font-size: 20px;
+      border: 3px solid white;
+      border-radius: 15px;
+      background: transparent;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      min-width: 220px;
+      text-align: center;
+    }
+
+    button:hover {
+      background: white;
+      color: #ff9800;
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    /* Difficulty submenu */
+    .submenu {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .submenu button {
+      font-size: 16px;
+      padding: 10px 20px;
+      min-width: 150px;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="menu">
+    <h1>Patintero</h1>
+
+    <!-- 1 Player -->
+    <button onclick="toggleSubmenu('submenu1')"><i class="fas fa-user"></i> 1 Player</button>
+    <div id="submenu1" class="submenu">
+      <button onclick="location.href='1p/one_p_easy.html'">Easy</button>
+      <button onclick="location.href='1p/one_p_hard.html'">Hard</button>
+    </div>
+
+    <!-- 2 Players -->
+    <button onclick="toggleSubmenu('submenu2')"><i class="fas fa-user-friends"></i> 2 Players</button>
+    <div id="submenu2" class="submenu">
+      <button onclick="location.href='2p/two_p_easy.html'">Easy</button>
+      <button onclick="location.href='2p/two_p_hard.html'">Hard</button>
+    </div>
+
+    <!-- 3 Players -->
+    <button onclick="toggleSubmenu('submenu3')"><i class="fas fa-users"></i> 3 Players</button>
+    <div id="submenu3" class="submenu">
+      <button onclick="location.href='3p/three_p_hard.html'">Hard</button>
+    </div>
+
+    <!-- 🔹 Go Back button -->
+    <button onclick="location.href='home.html'"><i class="fas fa-arrow-left"></i> Go Back</button>
+  </div>
+
+<script>
+  function toggleSubmenu(id) {
+    const menu = document.getElementById(id);
+    const isVisible = menu.style.display === 'block';
+
+    // Hide all submenus first
+    document.querySelectorAll('.submenu').forEach(m => m.style.display = 'none');
+
+    // If the clicked one was not visible, show it
+    if (!isVisible) {
+      menu.style.display = 'block';
+    }
+  }
+</script>
+
+</body>
+</html>

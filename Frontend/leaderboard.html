@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Leaderboard</title>
+<style>
+  body { 
+    background:#222; 
+    color:#fff; 
+    font-family:'Arial', sans-serif; 
+    text-align:center; 
+    margin:0; 
+    padding:0;
+  }
+
+  h1 { 
+    margin-top:20px; 
+    font-size: 48px; 
+    color: #ffeb3b; 
+    text-shadow: 2px 2px 8px #000; 
+  }
+
+  .filter-container {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  select {
+    padding: 8px 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 2px solid #555;
+    background: #333;
+    color: #fff;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+
+  select:hover, select:focus {
+    border-color: #ff9800;
+    background: #444;
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(45deg, #ff5722, #ff9800);
+    color: #fff;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+
+  button:hover {
+    background: linear-gradient(45deg, #ff9800, #ff5722);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(255, 152, 0, 0.8);
+  }
+
+  table { 
+    margin: 20px auto; 
+    border-collapse: collapse; 
+    width: 70%; 
+    max-width: 800px;
+    background: #333;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  th, td { 
+    border: 1px solid #555; 
+    padding: 12px; 
+    font-size: 18px;
+  }
+
+  th { 
+    background:#444; 
+    color:#ffeb3b;
+  }
+
+  tr:nth-child(even) { 
+    background:#2a2a2a; 
+  }
+
+  tr:hover {
+    background: rgba(255, 152, 0, 0.2);
+  }
+
+  .go-back-btn {
+    margin: 20px;
+    padding: 12px 30px;
+    font-size: 18px;
+    border-radius: 12px;
+    border: none;
+    background: #555;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .go-back-btn:hover {
+    background: #ff9800;
+    color: #000;
+    transform: scale(1.05);
+  }
+</style>
+</head>
+<body>
+
+<h1>Leaderboard</h1>
+
+<div class="filter-container">
+  <label for="modeSelect">Mode:</label>
+  <select id="modeSelect">
+    <option value="">All</option>
+    <option value="1P">1 Player</option>
+    <option value="2P">2 Players</option>
+    <option value="3P">3 Players</option>
+  </select>
+
+  <label for="difficultySelect">Difficulty:</label>
+  <select id="difficultySelect">
+    <option value="">All</option>
+    <option value="Easy">Easy</option>
+    <option value="Hard">Hard</option>
+  </select>
+
+  <button id="filterBtn">Filter</button>
+</div>
+
+<table>
+<thead>
+<tr><th>Team</th><th>Score</th><th>Mode</th><th>Difficulty</th></tr>
+</thead>
+<tbody id="leaderboard"></tbody>
+</table>
+
+<button class="go-back-btn" onclick="window.location.href='home.html'">Go Back</button>
+
+<script>
+async function loadScores(mode='', difficulty=''){
+  try{
+    let url = "http://localhost:3000/api/leaderboard?";
+    if(mode) url += `mode=${mode}&`;
+    if(difficulty) url += `difficulty=${difficulty}&`;
+    url += `limit=50`;
+
+    const res = await fetch(url);
+    const scores = await res.json();
+    const tbody = document.getElementById("leaderboard");
+    tbody.innerHTML="";
+    scores.forEach(s=>{
+      const row = document.createElement("tr");
+      row.innerHTML=`<td>${s.team}</td><td>${s.score}</td><td>${s.mode}</td><td>${s.difficulty}</td>`;
+      tbody.appendChild(row);
+    });
+  }catch(err){
+    console.error(err);
+  }
+}
+
+// Initial load
+loadScores();
+
+// Filter button
+document.getElementById("filterBtn").addEventListener("click", ()=>{
+  const mode = document.getElementById("modeSelect").value;
+  const difficulty = document.getElementById("difficultySelect").value;
+  loadScores(mode, difficulty);
+});
+</script>
+</body>
+</html>
