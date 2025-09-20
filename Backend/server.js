@@ -1,70 +1,93 @@
 // server.js
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
+const fs = require('fs');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = 3000;
+const LEADERBOARD_FILE = path.join(__dirname, 'leaderboard.json');
 
 // Middleware
-app.use(cors());
-app.use(bodyParser.json());
-
-// Serve static files (HTML/CSS/JS) from the project root
+app.use(express.json()); // replaces body-parser
+app.use(cors()); // adjust origin in production if needed
 app.use(express.static(path.join(__dirname, '/')));
 
-// In-memory leaderboard storage
-let leaderboard = [];
+// Rate limiter
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 30, // limit each IP to 30 requests per window
+});
+app.use('/api/', limiter);
 
-/**
- * GET /api/leaderboard
- * Optional query params:
- *   - mode (string)
- *   - difficulty (string)
- *   - limit (number)
- */
+// Load leaderboard from file or start empty
+let leaderboard = [];
+if (fs.existsSync(LEADERBOARD_FILE)) {
+  try {
+    leaderboard = JSON.parse(fs.readFileSync(LEADERBOARD_FILE));
+  } catch (err) {
+    console.error('Error reading leaderboard file:', err);
+  }
+}
+
+// Helper: save leaderboard to file
+function saveLeaderboard() {
+  fs.writeFileSync(LEADERBOARD_FILE, JSON.stringify(leaderboard, null, 2));
+}
+
+// GET /api/leaderboard?mode=&difficulty=&limit=&page=&pageSize=
 app.get('/api/leaderboard', (req, res) => {
-  const { mode, difficulty, limit } = req.query;
+  const { mode, difficulty, limit, page, pageSize } = req.query;
 
   let filtered = leaderboard;
 
-  if (mode) filtered = filtered.filter(entry => entry.mode === mode);
-  if (difficulty) filtered = filtered.filter(entry => entry.difficulty === difficulty);
+  if (mode) filtered = filtered.filter(e => e.mode === mode.trim());
+  if (difficulty) filtered = filtered.filter(e => e.difficulty === difficulty.trim());
 
-  // Sort by score descending
   filtered.sort((a, b) => b.score - a.score);
 
-  const top = limit ? filtered.slice(0, parseInt(limit)) : filtered;
+  // Pagination
+  const p = parseInt(page) || 1;
+  const ps = parseInt(pageSize) || (limit ? parseInt(limit) : filtered.length);
+  const paginated = filtered.slice((p - 1) * ps, p * ps);
 
-  res.json(top);
+  // Add ranking
+  const result = paginated.map((entry, index) => ({
+    rank: (p - 1) * ps + index + 1,
+    ...entry,
+  }));
+
+  res.json(result);
 });
 
-/**
- * POST /api/leaderboard
- * Body: { team: string, score: number, mode: string, difficulty: string }
- */
+// POST /api/leaderboard
 app.post('/api/leaderboard', (req, res) => {
-  const { team, score, mode, difficulty } = req.body;
+  let { team, score, mode, difficulty } = req.body;
 
+  // Validate input
   if (!team || typeof score !== 'number' || !mode || !difficulty) {
     return res.status(400).json({ message: 'Invalid payload' });
   }
+  if (score < 0) return res.status(400).json({ message: 'Score cannot be negative' });
 
-  // Check if team already exists for the same mode/difficulty
+  team = team.trim();
+  mode = mode.trim();
+  difficulty = difficulty.trim();
+
+  // Check if team already exists
   const existing = leaderboard.find(e => e.team === team && e.mode === mode && e.difficulty === difficulty);
   if (existing) {
-    // Add score to existing entry (cumulative)
-    existing.score += score;
+    existing.score += score; // cumulative score
   } else {
-    // Add new entry
     leaderboard.push({ team, score, mode, difficulty });
   }
 
+  saveLeaderboard();
   res.json({ message: 'Score added successfully' });
 });
 
-// Optional root route
+// Root route
 app.get('/', (req, res) => {
   res.send('Patintero Leaderboard API is running!');
 });
