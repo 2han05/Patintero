@@ -1,4 +1,4 @@
-[patinteroREADME.md](https://github.com/user-attachments/files/22450041/patinteroREADME.md)
+[README.md](https://github.com/user-attachments/files/22450041/patinteroREADME.md)
 # Patintero Leaderboard API
 ## 1. API Description & Features
 
@@ -10,8 +10,8 @@ This project is a **Leaderboard API** designed to store and manage scores for th
 - Retrieve leaderboard with optional filters:
 - By mode
 - By difficulty
-- With limit (e.g., top 5 scores only).
-- Scores are always sorted in descending order.
+- With limit (e.g., top 10 scores only).
+- Scores are always sorted in ascending order.
 - Lightweight in-memory storage (no external database required).
 
 ## 2. Installation / Setup
@@ -25,10 +25,10 @@ This project is a **Leaderboard API** designed to store and manage scores for th
 ### Steps:
 
 **Clone the repository:**
-- git clone <your-repo-url>
+- git clone (https://github.com/2han05/Patintero.git)
 
 **Install dependencies:**
-- cd <your-project-folder>
+- cd <project-folder-location>
 - npm install
 
 **Start the server:**
@@ -60,8 +60,8 @@ Retrieve the leaderboard. Supports filtering.
 
 ```json
 [
-  { "team": "Team A", "score": 120, "mode": "classic", "difficulty": "hard" },
-  { "team": "Team B", "score": 95, "mode": "classic", "difficulty": "hard" }
+  { "team": "Team A", "score": 120, "mode": "1p", "difficulty": "hard" },
+  { "team": "Team B", "score": 95, "mode": "3p", "difficulty": "hard" }
 ]
 ```
 ## 2. Submit Score
@@ -75,7 +75,7 @@ Add or update a team score.
 {
   "team": "Team A",
   "score": 50,
-  "mode": "classic",
+  "mode": "1p",
   "difficulty": "easy"
 }
 ```
